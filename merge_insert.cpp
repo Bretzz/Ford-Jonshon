@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   merge_insert.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 17:50:50 by totommi           #+#    #+#             */
-/*   Updated: 2025/08/25 01:19:33 by totommi          ###   ########.fr       */
+/*   Updated: 2025/08/25 13:40:36 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "merge_insert.h"
 #include <iostream>
+#include <cmath>
 
 /* swaps the index with the next cell */
 static void	swap_next_cell(std::vector<int>& v, int pos, size_t size)

@@ -10,7 +10,7 @@ NUM_ELEMENTS=$1
 OUTFILE="sorted.txt"
 
 # Generate unique random numbers
-ARG=$(awk -v loop=$NUM_ELEMENTS -v range=$NUM_ELEMENTS 'BEGIN {
+ARG=$(awk -v loop=$NUM_ELEMENTS -v range=4294967296 'BEGIN {
   srand()
   count = 0
   while (count < loop) {
@@ -41,9 +41,11 @@ echo "Generated input: $(truncate_list "$ARG")"
 # Measure time and capture output
 echo "Running ./merge with $NUM_ELEMENTS elements..."
 
-START_TIME=$(gdate +%s%N)
+# START_TIME=$(gdate +%s%N) // macOS
+START_TIME=$(date +%s%N)
 OUTPUT=$(echo $ARG | ./merge)
-END_TIME=$(gdate +%s%N)
+END_TIME=$(date +%s%N)
+# END_TIME=$(gdate +%s%N)   // macOS
 
 # Calculate elapsed time in milliseconds
 ELAPSED=$(( (END_TIME - START_TIME) / 1000000 ))
