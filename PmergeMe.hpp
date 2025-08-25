@@ -95,7 +95,7 @@ void	populateContainer(C& c, const std::string& str)
 #include <algorithm>
 
 template <class C>
-int	check4duplicatesFast(C& c)
+int	check4duplicates(C& c)
 {
 	std::sort(c.begin(), c.end());
 	for (size_t i = 1; i < c.size(); ++i)

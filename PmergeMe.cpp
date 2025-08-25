@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/08/25 21:47:45 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:50:04 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +278,7 @@ static int	checkDups(const std::string& nums)
 	std::vector<unsigned int>	v;
 
 	populateContainer(v, nums.c_str());
-	return check4duplicatesFast(v);
+	return check4duplicates(v);
 }
 
 /* executes all the files passed writing to their stdin
