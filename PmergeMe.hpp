@@ -61,9 +61,9 @@ void	populateContainer(C& c, char *argv[], int argc = 2)
 		while (argv[0][i] != '\0')
 		{
 			c.push_back(std::atoi(&argv[0][i]));
-			while (argv[0] != '\0' && std::isdigit(argv[0][i]))
+			while (argv[0][i] != '\0' && std::isdigit(argv[0][i]))
 				++i;
-			while (argv[0] != '\0' && std::isspace(argv[0][i]))
+			while (argv[0][i] != '\0' && std::isspace(argv[0][i]))
 				++i;
 		}
 	}
@@ -78,19 +78,32 @@ void	populateContainer(C& c, char *argv[], int argc = 2)
 }
 
 template <class C>
-int	check4duplicates(const C& c)
+void	populateContainer(C& c, const std::string& str)
 {
-	const typename C::const_iterator end = c.end();
+	unsigned int i = 0;
 
-	for (typename C::const_iterator it1 = c.begin(); it1 != end; ++it1) {
-		for (typename C::const_iterator it2 = c.begin(); it2 != end; ++it2) {
-			if (it2 == it1)
-				continue ;
-			if (*it2 == *it1)
-			{
-				std::cerr << "Error: duplicate '" << *it2 << "'" << std::endl;
-				return 1;
-			}
+	while (str[i] != '\0')
+	{
+		c.push_back(std::atoi(&str[i]));
+		while (str[i] != '\0' && std::isdigit(str[i]))
+			++i;
+		while (str[i] != '\0' && std::isspace(str[i]))
+			++i;
+	}
+}
+
+#include <algorithm>
+
+template <class C>
+int	check4duplicatesFast(C& c)
+{
+	std::sort(c.begin(), c.end());
+	for (size_t i = 1; i < c.size(); ++i)
+	{
+		if (c[i] == c[i - 1])
+		{
+			std::cerr << "Error: duplicate '" << c[i] << "'" << std::endl;
+			return 1;
 		}
 	}
 	return 0;

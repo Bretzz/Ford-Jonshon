@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/08/25 20:57:47 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:47:45 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,6 +271,16 @@ static int	sortCheck(void)
 	return 1;
 }
 
+#include "PmergeMe.hpp" // populateContainer, check4Duplicates
+
+static int	checkDups(const std::string& nums)
+{
+	std::vector<unsigned int>	v;
+
+	populateContainer(v, nums.c_str());
+	return check4duplicatesFast(v);
+}
+
 /* executes all the files passed writing to their stdin
 a sequence of random numbers betwee 1 and 4294967296,
 checking for the time of execution */
@@ -291,6 +301,14 @@ int	main(int argc, char *argv[])
 		return 1;
 		
 	/* CHECK DUPICATES */
+	if (checkDups(nums))	/* takes a lot */
+		return 1;
+
+	/* CLEAR OUTPUT FILES */
+	std::remove("./PmergeMe_deque.out");
+	std::remove("./PmergeMe_vector.out");
+	std::remove("./PmergeMe_list.out");
+	std::remove("./PmergeMe_sort.out");
 
 	std::cout << "Before : "; std::cout.flush();
 	printLargeStr(nums);
