@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/08/25 14:35:31 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 19:27:29 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,34 @@
 #  define RAND_SEED 1234
 # endif
 
-static void fillRandNums(std::vector<unsigned int>& v, unsigned long n)
+void	populateString(std::string& s, char *argv[], int argc = 2)
 {
-	unsigned long i = 0;
+	unsigned int i = 0;
 
-	std::cout << "Generating sequence of " << n << "numbers... ";
+	if (argc == 2)
+	{
+		s.assign(argv[0]);
+	}
+	else
+	{
+		while (argv[i] != NULL)
+		{
+			s.append(argv[i]);
+			s.append(" ");
+			++i;
+		}
+	}
+}
+
+#include <sstream>	// string stream
+
+static void fillRandNums(std::string& s, unsigned long n)
+{
+	unsigned long 				i = 0;
+	std::vector<unsigned int>	v;
+	std::stringstream			stream;
+
+	std::cout << "Generating sequence of " << n << " numbers... "; std::cout.flush();
 	while (i < n) {
 		unsigned int r = 1 + (std::rand() % 4294967296);
 		size_t j = 0;
@@ -32,18 +55,265 @@ static void fillRandNums(std::vector<unsigned int>& v, unsigned long n)
 			++j;
 		}
 		if (j == v.size())
+		{
+			stream << r << " ";
+			v.push_back(r);
 			++i;
+		}
 	}
-	std::cout << "DONE" << std::endl;
+	s.assign(stream.str());
+	std::cout << " DONE" << std::endl;
+}
+
+#include <cstdio>
+#include <unistd.h>
+#include <sys/time.h>	// gettimeofday
+
+static long long nowMs(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    return static_cast<long long>(tv.tv_sec) * 1000000 + tv.tv_usec;
+}
+
+int strcount(const std::string& str, int c)
+{
+	int		count = 0;
+	size_t	i = 0;
+	while (str[i] != 0)
+	{
+		if (str[i] == c)
+			++count;
+		++i;
+	}
+	return count;
+}
+
+/* executes the program found at 'execpath' and prints the time */
+static int	timedExec(const std::string& execpath, const std::string& ARG)
+{
+	// open a process for writing
+	FILE* pipe = popen((execpath + " > " + execpath + ".out" + " 2>&1").c_str(), "w");
+	
+	if (!pipe) {
+		std::perror("popen failed");
+		return 1;
+	}
+
+	const long long start = nowMs();		/* CLOCK IN */
+
+	// Send data to the process
+	write(pipe->_fileno, ARG.c_str(), ARG.length());
+
+	/* MERGING... */
+
+	// Close pipe and wait for the process to finish
+	int status = pclose(pipe);
+	
+	const long long end = nowMs();		/* CLOCK OUT */
+
+	if (!WIFEXITED(status)) {
+		std::cout << "Process terminated abnormally." << std::endl;
+	}
+
+	// Time to process a range of 3000 elements with std::[..] : 62.14389 us
+	std::cout << "Time to process a range of " << strcount(ARG, ' ') + 1 << " elements with std::" << execpath.substr(execpath.find('_') + 1) << " : " << (end - start) << " us (" << (end - start) / 1000 << " ms)" << std::endl;
+	return 0;
+}
+
+/* '1 2 3' */
+static int	normalize(std::string& str)
+{
+	size_t	i = 0;
+	int		f = 0;	// 0 = spaces, 1 = nums
+
+	while (str[i] != '\0')
+	{
+		if (str[i] != ' ' && !std::isdigit(str[i]))
+		{
+			std::cerr << "Error: invalid input '" << str[i] << "'" << std::endl;
+			return 1;
+		}
+		if (f == 0)
+		{
+			if (str[i] == ' ')
+			{
+				str.erase(str.begin() + i);
+				continue ;
+			}
+			if (str[i] != ' ')
+				f = 1;
+		}
+		else if (f == 1)
+		{
+			if (str[i] == ' ')
+				f = 0;
+		}
+		++i;
+	}
+	if (*(str.end() - 1) == ' ')
+		str.resize(str.size() - 1);
+	return 0;
+}
+
+static void	printLargeStr1(const std::string& before)
+{
+	std::cout << before.substr(0, 20);
+	if (before[19] == ' ')
+		return ;
+	std::cout << before.substr(20, before.find(' ', 19) - 19);
+}
+
+static void	printLargeStr2(const std::string& before)
+{
+	size_t	i = before.size() - 21;
+	while (i > 0 && before.at(i) != ' ')
+		--i;
+	std::cout << before.substr(i);
+}
+
+/* prints 50 chars before, 20 after, without breaking numbers */
+static void	printLargeStr(const std::string& before)
+{
+	if (before.size() <= 40)
+	{
+		std::cout << before << std::endl;
+		return ;
+	}
+	printLargeStr1(before);
+	std::cout << "[...]";
+	printLargeStr2(before);
+	std::cout << std::endl;
+}
+
+std::string raw_getline(std::istream& in) {
+    std::string line;
+    std::getline(in, line);  // C++98-compatible
+    return line;
+}
+
+#include <fstream>
+
+static int	sortCheck(void)
+{
+	int				err = 0;
+	std::string		sorted;
+	std::ifstream	file("./PmergeMe_sort.out");
+	if (file){
+		std::getline(file, sorted);
+		file.close();
+	}
+	else
+	{
+		std::cerr << "Error: opening output file" << std::endl;
+		return 1;
+	}
+	std::string	out;
+	/* VECTOR */
+	file.open("./PmergeMe_vector.out");
+	if (file){
+		std::getline(file, out);
+		if (sorted != out)
+		{
+			std::cout << "Vector isn't sorted correctly" << std::endl;
+			err = 1;
+		}
+		file.close();
+	}
+	else
+	{
+		std::cerr << "Error: opening output file" << std::endl;
+		return 1;
+	}
+	/* DEQUE */
+	file.open("./PmergeMe_vector.out");
+	if (file){
+		std::getline(file, out);
+		if (sorted != out)
+		{
+			std::cout << "Deque isn't sorted correctly" << std::endl;
+			err = 1;
+		}
+		file.close();
+	}
+	else
+	{
+		std::cerr << "Error: opening output file" << std::endl;
+		return 1;
+	}
+	/* LIST */
+	file.open("./PmergeMe_list.out");
+	if (file){
+		std::getline(file, out);
+		if (sorted != out)
+		{
+			std::cout << "List isn't sorted correctly" << std::endl;
+			err = 1;
+		}
+		file.close();
+	}
+	else
+	{
+		std::cerr << "Error: opening output file" << std::endl;
+		return 1;
+	}
+	if (err == 0)
+	{
+		std::cout << "✅ Output is correctly sorted!" << std::endl;
+		return 0;
+	}
+	return 1;
 }
 
 /* executes all the files passed writing to their stdin
 a sequence of random numbers betwee 1 and 4294967296,
 checking for the time of execution */
-int	main(void)
+int	main(int argc, char *argv[])
 {
-	std::srand(RAND_MAX);	/* seeding the rand */
+	std::srand(RAND_SEED);	/* seeding the rand */
 
-	std::vector<unsigned int>	nums;
-	fillRandNums(nums, 100000);
+	std::string	nums;
+
+	if (argc == 1)
+		fillRandNums(nums, 3000);				// no input, generate one
+	else
+		populateString(nums, argv + 1, argc);	// given input
+
+	/* NORMALIZE STR */
+	
+	if (normalize(nums))
+		return 1;
+		
+	/* CHECK DUPICATES */
+
+	std::cout << "Before : "; std::cout.flush();
+	printLargeStr(nums);
+	
+	timedExec("./PmergeMe_deque", nums);
+	timedExec("./PmergeMe_vector", nums);
+	timedExec("./PmergeMe_list", nums);
+	timedExec("./PmergeMe_sort", nums);
+
+	std::ifstream file("./PmergeMe_vector.out");
+	if (file){
+		std::cout << "After: "; std::cout.flush();
+		printLargeStr(raw_getline(file));
+		file.close();
+	}
+	else
+	{
+		std::cerr << "Error: opening output file" << std::endl;
+		return 1;
+	}
+	sortCheck();
+	return 0;
 }
+
+/*
+= SUBJECT OUTPUT =
+Before: 3 5 9 7 4
+After: 3 4 5 7 9
+Time to process a range of 5 elements with std::[..] : 0.00031 us
+Time to process a range of 5 elements with std::[..] : 0.00014 us
+*/

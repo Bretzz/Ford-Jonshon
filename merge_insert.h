@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 17:56:37 by totommi           #+#    #+#             */
-/*   Updated: 2025/08/25 14:21:52 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:25:26 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,21 @@
 
 void	merge_insert(std::vector<unsigned int>& v, size_t size = 1);
 void	merge_insert(std::deque<unsigned int>& d, size_t size = 1);
+void	merge_insert(std::list<unsigned int>& main, size_t size = 1);
 
 template <class T>
 static void printStuff(const T& c, int size = 1)
 {
+	typename T::const_iterator it = c.begin();
 	for (size_t i = 0; i < c.size(); ++i)
 	{
 		if (size != 1 && i % size == size - 1)
 			std::cout << "[";
-		std::cout << c[i];
+		std::cout << *it;
 		if (size != 1 && i % size == size - 1)
 			std::cout << "]";
 		std::cout << " ";
+		std::advance(it, 1);
 	}
 }
 

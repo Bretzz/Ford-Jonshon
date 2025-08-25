@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 17:50:50 by totommi           #+#    #+#             */
-/*   Updated: 2025/08/25 13:53:54 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 20:36:59 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,12 @@
 #include <cmath>
 #include <vector>
 
+#include <iostream>	// just 2 error prints
+
 /* swaps the index with the next cell */
 static void	swap_next_cell(std::vector<unsigned int>& v, int pos, size_t size)
 {
-	int	tmp;
+	unsigned int	tmp;
 
 	for (size_t i = 0; i < size; ++i) {
 		tmp = v[pos - i];
@@ -94,12 +96,13 @@ static int	binary_split(const std::vector<unsigned int>& main, size_t low, size_
 		return binary_split(main, low, half, target, size);
 	}
 	/* ERROR: BINARY CASE */
-	return low;
+	std::cerr << "Error: binary case" << std::endl;
+	return -2;
 }
 
 /* cell is a ptr to the higher element of the cell (the cell follows on the right)
 bound is the index of the higer element of the leftmost cell to consider */
-static void insert_part_of_the_sort(std::vector<unsigned int>& main, unsigned int* cell, size_t bound, size_t size)
+static int insert_part_of_the_sort(std::vector<unsigned int>& main, unsigned int* cell, size_t bound, size_t size)
 {
 	if (bound > main.size())
 		bound = (main.size() / size) * size - 1;
@@ -107,7 +110,9 @@ static void insert_part_of_the_sort(std::vector<unsigned int>& main, unsigned in
 	int tarcell = binary_split(main, size - 1, bound, *cell, size);
 	int	tarpos = (tarcell < 0) ? -tarcell - size : tarcell + 1;
 
-	if (tarcell == -1)
+	if (tarcell == -2)
+		return 1;
+	else if (tarcell == -1)
 	{
 		for (size_t i = 0; i < size; ++i) {
 			main.insert(main.begin(), cell[i]);
@@ -119,12 +124,13 @@ static void insert_part_of_the_sort(std::vector<unsigned int>& main, unsigned in
 			main.insert(main.begin() + tarpos, cell[i]);
 		}
 	}
+	return 0;
 }
 
 /* performs the sort of the elements in 'main' using the Ford-Jonshon Algorithm */
 void	merge_insert(std::vector<unsigned int>& main, size_t size)
 {
-	std::vector<unsigned int>			pend;
+	std::vector<unsigned int>	pend;
 	static const unsigned long	jacobsthal[] = {0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461, 10923, 21845, 43691, 87381, 174763, 349525, 699051, 1398101, 2796203, 5592405, 11184811, 22369621, 44739243, 89478485, 178956971, 357913941, 715827883, 1431655765, 2863311531, 5726623061, 11453246123};
 
 	/* FORWARD */
@@ -155,11 +161,13 @@ void	merge_insert(std::vector<unsigned int>& main, size_t size)
 				i = (pend.size() / size ) * size - size;
 				jacob_cap = 1;
 			}
-			insert_part_of_the_sort(main, &pend[i], (std::pow(2, j - 1) - 1) * size - 1, size);
+			if (insert_part_of_the_sort(main, &pend[i], (std::pow(2, j - 1) - 1) * size - 1, size))
+				return ;
 		}
 		if (jacob_cap == 1)
 			return ;
 		last = (jacobsthal[j] - 1) * size - 1;	// biggest index just inserted
 	}
 	/* ERROR: END OF JACOBSTHAL */
+	std::cerr << "Error: end of jacobsthal database" << std::endl;
 }

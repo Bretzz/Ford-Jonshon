@@ -43,7 +43,7 @@ echo "Running ./merge with $NUM_ELEMENTS elements..."
 
 # START_TIME=$(gdate +%s%N) // macOS
 START_TIME=$(date +%s%N)
-OUTPUT=$(echo $ARG | ./merge)
+OUTPUT=$(echo $ARG | ./PmergeMe_vector)
 END_TIME=$(date +%s%N)
 # END_TIME=$(gdate +%s%N)   // macOS
 
