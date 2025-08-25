@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/08/25 21:50:04 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:52:13 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,10 @@ static int	sortCheck(void)
 {
 	int				err = 0;
 	std::string		sorted;
-	std::ifstream	file("./PmergeMe_sort.out");
+	std::ifstream	file;
+
+	/* VERIFICATION */
+	file.open("./PmergeMe_sort.out");
 	if (file){
 		std::getline(file, sorted);
 		file.close();
@@ -296,12 +299,11 @@ int	main(int argc, char *argv[])
 		populateString(nums, argv + 1, argc);	// given input
 
 	/* NORMALIZE STR */
-	
 	if (normalize(nums))
 		return 1;
 		
 	/* CHECK DUPICATES */
-	if (checkDups(nums))	/* takes a lot */
+	if (checkDups(nums))
 		return 1;
 
 	/* CLEAR OUTPUT FILES */
@@ -310,15 +312,18 @@ int	main(int argc, char *argv[])
 	std::remove("./PmergeMe_list.out");
 	std::remove("./PmergeMe_sort.out");
 
+	/* PRINT BEFORE */
 	std::cout << "Before : "; std::cout.flush();
 	printLargeStr(nums);
 	
+	/* EXEC SORTINGS */
 	timedExec("./PmergeMe_deque", nums);
 	timedExec("./PmergeMe_vector", nums);
 	if (strcount(nums, ' ') <= 20000)
 		timedExec("./PmergeMe_list", nums);
 	timedExec("./PmergeMe_sort", nums);
 
+	/* PRINT AFTER */
 	std::ifstream file("./PmergeMe_vector.out");
 	if (file){
 		std::cout << "After: "; std::cout.flush();
@@ -330,6 +335,8 @@ int	main(int argc, char *argv[])
 		std::cerr << "Error: opening output file" << std::endl;
 		return 1;
 	}
+
+	/* CHECK OUTPUT VALIDITY */
 	sortCheck();
 	return 0;
 }
