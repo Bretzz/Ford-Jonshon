@@ -44,10 +44,10 @@ $(NAME): $(VECTOR) $(DEQUE) $(LIST) $(SORT) $(OBJS_MAIN)
 	$(CXX) $(CXXFLAGS) $(OBJS_MAIN) -o $(NAME)
 
 clean:
-	rm -rf $(OBJS_DEQUE) $(OBJS_VECTOR) $(OBJS_SORT) $(OBJS_MAIN) $(VECTOR).out $(DEQUE).out $(SORT).out
+	rm -rf $(OBJS_DEQUE) $(OBJS_VECTOR) $(OBJS_LIST) $(OBJS_SORT) $(OBJS_MAIN) $(VECTOR).out $(DEQUE).out $(LIST).out $(SORT).out
 
 fclean: clean
-	rm -rf $(OBJ_DIR) $(NAME) $(VECTOR) $(DEQUE) $(SORT)
+	rm -rf $(OBJ_DIR) $(NAME) $(VECTOR) $(DEQUE) $(LIST) $(SORT)
 
 re: fclean all
 

@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   merge_insert.h                                     :+:      :+:    :+:   */
+/*   PmergeMe.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 17:56:37 by totommi           #+#    #+#             */
-/*   Updated: 2025/08/25 17:25:26 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 20:39:03 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MERGE_INSERT_H
-# define MERGE_INSERT_H
+#ifndef PMERGEME_HPP
+# define PMERGEME_HPP
 
 # include <sys/types.h>
 # include <vector>
@@ -80,7 +80,6 @@ void	populateContainer(C& c, char *argv[], int argc = 2)
 template <class C>
 int	check4duplicates(const C& c)
 {
-	// typedef typename C::value_type T;  // this gets the element type
 	const typename C::const_iterator end = c.end();
 
 	for (typename C::const_iterator it1 = c.begin(); it1 != end; ++it1) {

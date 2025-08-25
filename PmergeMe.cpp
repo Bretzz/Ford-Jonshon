@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/08/25 19:27:29 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 20:57:47 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,10 +206,12 @@ static int	sortCheck(void)
 	}
 	else
 	{
-		std::cerr << "Error: opening output file" << std::endl;
+		std::cerr << "Error: opening verification output file" << std::endl;
 		return 1;
 	}
+
 	std::string	out;
+	
 	/* VECTOR */
 	file.open("./PmergeMe_vector.out");
 	if (file){
@@ -217,31 +219,33 @@ static int	sortCheck(void)
 		if (sorted != out)
 		{
 			std::cout << "Vector isn't sorted correctly" << std::endl;
-			err = 1;
+			++err;
 		}
 		file.close();
 	}
 	else
 	{
-		std::cerr << "Error: opening output file" << std::endl;
-		return 1;
+		if (errno != ENOENT)
+			std::cerr << "Error: opening list output file" << std::endl;
 	}
+
 	/* DEQUE */
-	file.open("./PmergeMe_vector.out");
+	file.open("./PmergeMe_deque.out");
 	if (file){
 		std::getline(file, out);
 		if (sorted != out)
 		{
 			std::cout << "Deque isn't sorted correctly" << std::endl;
-			err = 1;
+			++err;
 		}
 		file.close();
 	}
 	else
 	{
-		std::cerr << "Error: opening output file" << std::endl;
-		return 1;
+		if (errno != ENOENT)
+			std::cerr << "Error: opening list output file" << std::endl;
 	}
+
 	/* LIST */
 	file.open("./PmergeMe_list.out");
 	if (file){
@@ -249,15 +253,16 @@ static int	sortCheck(void)
 		if (sorted != out)
 		{
 			std::cout << "List isn't sorted correctly" << std::endl;
-			err = 1;
+			++err;
 		}
 		file.close();
 	}
 	else
 	{
-		std::cerr << "Error: opening output file" << std::endl;
-		return 1;
+		if (errno != ENOENT)
+			std::cerr << "Error: opening list output file" << std::endl;
 	}
+
 	if (err == 0)
 	{
 		std::cout << "✅ Output is correctly sorted!" << std::endl;
@@ -292,7 +297,8 @@ int	main(int argc, char *argv[])
 	
 	timedExec("./PmergeMe_deque", nums);
 	timedExec("./PmergeMe_vector", nums);
-	timedExec("./PmergeMe_list", nums);
+	if (strcount(nums, ' ') <= 20000)
+		timedExec("./PmergeMe_list", nums);
 	timedExec("./PmergeMe_sort", nums);
 
 	std::ifstream file("./PmergeMe_vector.out");

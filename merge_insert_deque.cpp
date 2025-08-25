@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 17:50:50 by totommi           #+#    #+#             */
-/*   Updated: 2025/08/25 20:35:50 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/08/25 20:51:58 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ static int insert_part_of_the_sort(std::deque<unsigned int>& main, std::deque<un
 	int tarcell = binary_split(main, size - 1, bound, *cell, size);
 	int	tarpos = (tarcell < 0) ? -tarcell - size : tarcell + 1;
 
-	if (tarcell == -1)
+	if (tarcell == -2)
 		return 1;
 	else if (tarcell == -1)
 	{
