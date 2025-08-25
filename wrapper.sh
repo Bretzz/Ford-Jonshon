@@ -8,6 +8,9 @@ fi
 
 NUM_ELEMENTS=$1
 OUTFILE="sorted.txt"
+EXEC="PmergeMe_vector"
+
+make $EXEC --quiet
 
 # Generate unique random numbers
 ARG=$(awk -v loop=$NUM_ELEMENTS -v range=4294967296 'BEGIN {
@@ -39,7 +42,7 @@ truncate_list() {
 echo "Generated input: $(truncate_list "$ARG")"
 
 # Measure time and capture output
-echo "Running ./merge with $NUM_ELEMENTS elements..."
+echo "Running ./$EXEC with $NUM_ELEMENTS elements..."
 
 # START_TIME=$(gdate +%s%N) // macOS
 START_TIME=$(date +%s%N)
