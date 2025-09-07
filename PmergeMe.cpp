@@ -6,7 +6,7 @@
 /*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/09/07 20:35:01 by totommi          ###   ########.fr       */
+/*   Updated: 2025/09/07 20:51:24 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,21 @@
 #  define RAND_SEED 1234
 # endif
 
+# include <sstream>
+
 void	populateString(std::string& s, char *argv[], int argc = 2)
 {
 	unsigned int i = 0;
 
+	if (argc == 1)
+	{
+		std::stringstream ss;
+		int x;
+		while (std::cin >> x) {
+    		ss << x << " ";
+		}
+		s = ss.str();
+	}
 	if (argc == 2)
 	{
 		s.assign(argv[0]);
@@ -316,6 +327,10 @@ static int	checkMax(const std::string& nums)
 	return 0;
 }
 
+/*
+macOS: jot -r 200000 1 2147483647 | sort -u | head -n 100000 | shuf | tr "\n" " "
+Linux: shuf -i 1-2147483648 -n 100000
+*/
 /* executes all the files passed writing to their stdin
 a sequence of random numbers betwee 1 and 4294967296,
 checking for the time of execution */
@@ -325,7 +340,7 @@ int	main(int argc, char *argv[])
 
 	std::string	nums;
 
-	if (argc == 1)
+	if (argc == 2 && argv[1][0] == 'r')
 		fillRandNums(nums, 3000);				// no input, generate one
 	else
 		populateString(nums, argv + 1, argc);	// given input
@@ -346,6 +361,7 @@ int	main(int argc, char *argv[])
 	std::remove("./PmergeMe_deque.out");
 	std::remove("./PmergeMe_vector.out");
 	std::remove("./PmergeMe_list.out");
+	std::remove("./PmergeMe_fortran.out");
 	std::remove("./PmergeMe_sort.out");
 
 	/* PRINT BEFORE */
