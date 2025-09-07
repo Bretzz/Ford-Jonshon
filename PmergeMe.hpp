@@ -82,7 +82,6 @@ void	populateContainer(C& c, const std::string& str)
 {
 	unsigned int i = 0;
 
-	std::cout << "mode str" << std::endl;
 	while (str[i] != '\0')
 	{
 		c.push_back(std::atol(&str[i]));

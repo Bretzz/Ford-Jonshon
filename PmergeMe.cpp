@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/09/07 20:15:06 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/09/07 20:35:01 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,8 @@ static int	timedExec(const std::string& execpath, std::string ARG, const char se
 
 
 	// Send data to the process
-	write(pipe->_fileno, ARG.c_str(), ARG.length());
+	fwrite(ARG.c_str(), ARG.length(), 1, pipe);
+	// write(pipe->_fileno, ARG.c_str(), ARG.length());
 
 	/* MERGING... */
 
@@ -124,7 +125,7 @@ static int	timedExec(const std::string& execpath, std::string ARG, const char se
 	}
 
 	// Time to process a range of 3000 elements with std::[..] : 62.14389 us
-	std::cout << "Time to process a range of " << strcount(ARG, ' ') + 1 << " elements with std::" << execpath.substr(execpath.find('_') + 1) << " : " << (end - start) << " us (" << (end - start) / 1000 << " ms)" << std::endl;
+	std::cout << "Time to process a range of " << strcount(ARG, separator) + 1 << " elements with std::" << execpath.substr(execpath.find('_') + 1) << " : " << (end - start) << " us (" << (end - start) / 1000 << " ms)" << std::endl;
 	return 0;
 }
 
@@ -333,8 +334,6 @@ int	main(int argc, char *argv[])
 	if (normalize(nums))
 		return 1;
 	
-	std::cout << "normalized" << std::endl;
-
 	/* CHECK >2147483647 */
 	if (checkMax(nums))
 		return 1;
