@@ -60,7 +60,7 @@ void	populateContainer(C& c, char *argv[], int argc = 2)
 	{
 		while (argv[0][i] != '\0')
 		{
-			c.push_back(std::atoi(&argv[0][i]));
+			c.push_back(std::atol(&argv[0][i]));
 			while (argv[0][i] != '\0' && std::isdigit(argv[0][i]))
 				++i;
 			while (argv[0][i] != '\0' && std::isspace(argv[0][i]))
@@ -71,7 +71,7 @@ void	populateContainer(C& c, char *argv[], int argc = 2)
 	{
 		while (argv[i] != NULL)
 		{
-			c.push_back(std::atoi(argv[i]));
+			c.push_back(std::atol(argv[i]));
 			++i;
 		}
 	}
@@ -82,9 +82,10 @@ void	populateContainer(C& c, const std::string& str)
 {
 	unsigned int i = 0;
 
+	std::cout << "mode str" << std::endl;
 	while (str[i] != '\0')
 	{
-		c.push_back(std::atoi(&str[i]));
+		c.push_back(std::atol(&str[i]));
 		while (str[i] != '\0' && std::isdigit(str[i]))
 			++i;
 		while (str[i] != '\0' && std::isspace(str[i]))
@@ -102,7 +103,7 @@ int	check4duplicates(C& c)
 	{
 		if (c[i] == c[i - 1])
 		{
-			std::cerr << "Error: duplicate '" << c[i] << "'" << std::endl;
+			std::cerr << "Error: duplicate: " << c[i] << std::endl;
 			return 1;
 		}
 	}

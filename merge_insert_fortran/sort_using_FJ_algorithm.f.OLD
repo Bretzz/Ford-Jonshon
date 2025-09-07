@@ -1,0 +1,572 @@
+c
+c
+c SORT USING FORD-JOHNSON ALGORITHM
+c
+c
+c Glossary:
+c Element-N = array of 2ˆN integers
+c Higher value in a sorted Element = the rightmost value (also called "element-value")
+c Minor = in a Element-N, the Element-(N-1) with the lower higher value
+c Major = in a Element-N, the Element-(N-1) with the higher higher value
+c Fj(j) = j-th number of hte Ford-Johnson sequence
+c
+c Foward process
+c
+c 1. Create Element-1 from the left (the potential resting integer remains at the right end)
+c 2. Inside-sort of all Element-1 
+c 3. Create Element-2 joining adjacent Element-1 from the left (the potential resting Element-1 and single integer remain at the right end)
+c 4  Inside-sort of all Element-2 considering the element-value of the joined Element-1
+c 5. Iterate 3 and 4 till there are only one or two Element-M available
+c 6. (if two Element-M available) Sort Element-M
+c
+c 
+c Reverse process
+c
+c 7. Considering the higher values in the Element-(M-1), take the higher Element-(M-1), and the "minor" of the lower higher value of the Element-(M-1), and build a new sequence
+c 8. Considering the remaining Element-(M-1) in the original order at point 6: 
+c 8a. Recursively insert them in the sequence created at point 7, starting from:
+c 8a1.  The Fj(1)-th Element-(M-1) and back to the first, then ...
+c 8a2.  Starting from the Fj(2)-th Element-(M-1) and back to the Fj(1)-th Element(M-1) excluded, and ...
+c 8a3.  So on to Fj(n)-th Element-(M-1) if necessary. 
+c
+c    WARNING: Remember that each Element-(M-1) to be inserted is already minor of a precise Element-(M-1), so comparison must be done ONLY with lower Element-(M-1) for insertion 
+c 
+c 9. Repeat 7 and 8 back to Element-1 and insert the final single minor values
+c
+c
+c
+c
+c
+
+
+	program sort_FJ_algorithm
+
+
+	implicit none
+
+        include 'sort.param'
+
+c  Variables
+
+	integer N, M
+	integer seq_0(max_n)
+        integer seq_1(max_n)
+        integer seq_2(max_n)
+
+	integer J_seq(31)
+	data J_seq /0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461, 
+     *              10923, 21845, 43691, 87381, 174763, 349525, 699051, 1398101, 2796203, 
+     *              5592405, 11184811, 22369621, 44739243, 89478485, 178956971, 357913941 /
+
+
+c Scratch Variables
+
+
+	integer i, ii, j, jj, k, kk, idum, N2
+	integer k_i, k_r
+	integer max_order
+	integer n_elem, n_int
+	integer R
+	integer first_index
+	integer second_index
+	integer a,b
+	integer i_j, last_i_j
+        integer k_end, k_start, kk_in
+	integer inserted_elements, inserted_values
+	integer remaining_elements, old_elem
+	integer starting_elements, added_elements
+
+	real*8  start_loop, end_loop, total_time, t1
+	real*4  x
+
+	logical inserted, debug
+
+	debug=.false.
+
+c Read sequence
+
+        open(11,file='sequence', status='unknown')
+        read(11,*) N
+        do i = 1, N
+          read(11,*) idum, seq_0(i)
+        enddo
+        close(11)
+	N2=int(0.5*N)
+        do j=1,N
+          seq_1(j)=seq_0(j)
+        enddo
+
+        write(*,*) ' Number of integers in the sequence:', N
+        write(*,'(a,20i8)') 'START: ', (seq_0(j),j=1,20)
+
+        call cputime(t1)
+        start_loop=t1
+	write(*,'(a,f20.5)') ' START at:', start_loop
+
+
+
+
+c Compute maximum Element order M
+
+	max_order=20
+	do i=1,max_order
+          j=2**i
+	  if(2**i.gt.N2) goto 1001
+	enddo
+
+ 1001   continue
+	M=i
+
+        if(debug)write(*,*) ' Maximum Element order: ', M
+
+c
+c the FORWARD PROCESS
+c 
+
+	do i=1,M
+
+        if(debug)write(*,*)
+        if(debug)write(*,*) ' ------------------------------------- '
+	if(debug)write(*,*) ' WORKING on ELEMENT of ORDER', i
+        if(debug)write(*,*)
+
+c       Find Number of Element-i and rest
+
+	  n_elem=int(N/(2**i))
+	  R=N-(2**i)*n_elem
+	  if(debug)write(*,*) ' N of element-i: ', n_elem
+          if(debug)write(*,*) ' Rest: ', R
+
+c     Compose new sequence
+
+c       New sequence is the old one and then changed
+
+	  do j=1,N
+            seq_2(j)=seq_1(j)
+          enddo
+
+	  second_index=0
+	  n_int=2**(i-1)
+
+	  do j=1,n_elem
+	    
+            first_index=2**(i-1)+second_index
+            second_index=2**(i)+second_index
+	    a=seq_1(first_index)
+            b=seq_1(second_index)
+	    if(b.lt.a)then
+              do k= 0, n_int-1
+	        seq_2(second_index-k)=seq_1(first_index-k)
+                seq_2(first_index-k)=seq_1(second_index-k)
+              enddo
+	    endif
+	
+	  enddo
+
+	  if(debug)write(*,'(a,20i8)') 'START: ', (seq_0(j),j=1,20)
+          if(debug)write(*,'(a,20i8)') 'OLD:   ', (seq_1(j),j=1,20)
+          if(debug)write(*,'(a,20i8)') 'NEW:   ', (seq_2(j),j=1,20)
+
+c       New sequence becomes the old one and then back
+
+          do j=1,N
+            seq_1(j)=seq_2(j)
+          enddo
+
+	enddo	  
+
+c
+c
+c
+c
+c the REVERSE PROCESS
+c
+c
+c
+c
+
+c      FORWARD sequence becomes the start for REVERSE sequence
+
+        do j=1,N
+          seq_0(j)=seq_2(j)
+        enddo
+
+
+
+
+        do i=M-1,0,-1
+
+	  
+
+          if(debug)write(*,*)
+          if(debug)write(*,*) ' ------------------------------------- '
+          if(debug)write(*,*) ' ------------------------------------- '
+          if(debug)write(*,*) ' REVERSE WORKING on ELEMENT of ORDER', i
+          if(debug)write(*,*)
+
+c       Find Number of Element-i and rest
+
+          n_int=2**(i)
+	  if(i.eq.M-1)then
+            n_elem=int(N/(2**(i)))
+            R=N-(2**(i))*n_elem
+          endif
+          if(i.ne.M-1)n_elem=int((N-R)/(2**(i)))
+
+	  
+          if(debug)write(*,*) ' N of element-i: ', n_elem
+          if(debug)write(*,*) ' Rest: ', R
+          if(debug)write(*,*) ' N of values: ', n_int
+
+c     Compose new sequence
+
+c     Polish previous seq
+
+	  do j=1,N
+            seq_2(j)=-1 
+          enddo
+
+c       New sequence is:
+
+c         First element (because is the lower of the lower highest)
+
+	  inserted_elements=1
+          jj=0
+          do j=1,2**(i)
+            jj=jj+1
+            seq_2(jj)=seq_1(j)
+          enddo
+
+c         All EVEN elements
+
+	  do k = 2, n_elem, 2
+            do j=1,2**(i)
+              jj=jj+1
+              kk= (k-1)*2**(i) + j
+              seq_2(jj)=seq_1(kk)
+            enddo
+            inserted_elements=inserted_elements+1
+          enddo
+
+	  remaining_elements=n_elem-inserted_elements
+	  inserted_values=jj
+
+	  if(debug)write(*,'(a,20i8)') 'INSERTED/REMAINING N ELEMENTS:', inserted_elements, remaining_elements
+	  if(debug)write(*,'(a,20i8)') 'INSERTED VALUES: ', inserted_values
+          if(debug)write(*,'(a,20i8)') 'INTERMEDIATE 1:   ', (seq_2(j),j=1,20)
+
+          if(remaining_elements.eq.0)goto 2001
+
+
+
+
+c         Insert single remaining element
+
+
+          if(remaining_elements.eq.1)then
+
+            k=3
+            kk_in = (k-1)*2**(i) + 2**(i)
+            if(debug)write(*,'(a,20i8)') 'INSERTING:   ', k, kk_in, seq_1(kk_in)
+
+	    inserted=.false.
+
+            do k=2,1,-1
+
+              kk = (k-1)*2**(i) + 2**(i)
+              if(seq_1(kk_in).gt.seq_1(kk))then
+
+	        inserted=.true.
+                if(debug)write(*,'(a,20i8)') 'INSERTING above value:', seq_1(kk)
+
+c               Shift sequence up
+
+                jj=kk+1
+                do ii= N, jj, -1
+                  if(seq_2(ii).gt.0)then
+                    seq_2(ii+2**(i))=seq_2(ii)
+                  endif
+                enddo
+
+c               Insert Element
+
+                do ii=n_int-1,0,-1
+                  seq_2(kk+2**(i)-ii)=seq_1(kk_in-ii)
+                enddo
+                goto 2004
+
+              endif
+
+            enddo
+
+	    if(.not.inserted)then
+
+              if(debug)write(*,*) 'INSERTING AS FIRST'
+              inserted=.true.
+
+c             Shift sequence up
+
+              jj=1
+              do ii= N, jj, -1
+                if(seq_2(ii).gt.0)then
+                  seq_2(ii+2**(i))=seq_2(ii)
+                endif
+              enddo
+
+c             Insert Element
+
+              do ii=n_int-1,0,-1
+                seq_2(2**(i)-ii)=seq_1(kk_in-ii)
+              enddo
+              goto 2004
+
+            endif
+
+ 2004       continue
+
+          else
+
+
+
+c           Insert all remaining elements using Johnson sequence
+
+
+
+  	    last_i_j=-1
+	    do k=4,24
+	      if(J_seq(k).ge.remaining_elements+1.and.last_i_j.lt.0)last_i_j=k
+	    enddo
+
+	    if(debug)write(*,'(a,20i4)') 'LAST NECESSARY JOHNSON:   ', last_i_j
+
+
+c         Insert elements within Johnson sequence
+
+
+            added_elements=0
+
+            do i_j=4,last_i_j
+
+	      k_start=J_seq(i_j)
+              k_end=J_seq(i_j-1)+1
+	      if(i_j.eq.4)k_end=2
+
+	      do k_r = k_start,k_end,-1  
+
+	        old_elem=(2*k_r)-1
+                if(old_elem.le.n_elem)then
+		  kk_in = (old_elem-1)*2**(i) + 2**(i)
+	          if(debug)write(*,'(a,20i8)') 'INSERTING:   ', k_r, old_elem, kk_in, seq_1(kk_in)
+
+                  inserted=.false.
+	          kk=-1
+		  starting_elements=1+ (old_elem+1)/2 + added_elements
+
+	          call binary_insert(seq_1(kk_in),n_int,N,starting_elements,seq_2,kk,inserted)
+
+	          if(inserted)then
+
+                    added_elements=added_elements+1
+	            if(debug)write(*,'(a,20i8)') 'INSERTING above value:', seq_2(kk)
+
+c                   Shift sequence up
+
+                    jj=kk+1
+                    do ii= N, jj, -1
+                      if(seq_2(ii).gt.0)then
+                        seq_2(ii+2**(i))=seq_2(ii)
+                      endif
+                    enddo
+
+c                   Insert Element
+
+                    do ii=n_int-1,0,-1
+                      seq_2(kk+2**(i)-ii)=seq_1(kk_in-ii)
+                    enddo
+                    goto 2002
+
+                  endif
+
+                  if(.not.inserted)then
+
+                    if(debug)write(*,*) 'INSERTING AS FIRST'
+                    inserted=.true.
+                    added_elements=added_elements+1
+c                     Shift sequence up
+
+                    jj=1
+                    do ii= N, jj, -1
+                      if(seq_2(ii).gt.0)then
+                        seq_2(ii+2**(i))=seq_2(ii)
+                      endif
+                    enddo
+
+c                     Insert Element
+
+                    do ii=n_int-1,0,-1
+                      seq_2(2**(i)-ii)=seq_1(kk_in-ii)
+                    enddo
+                    goto 2002
+
+
+                  endif
+c 
+c END-IF on old_elem < n_elem
+c 
+                endif
+c
+c end do-loop on remaining elements
+c
+ 2002           continue
+                if(debug)write(*,'(a,22i8)') 'INTERMEDIATE n:   ', k_r, (seq_2(j),j=1,20)
+
+              enddo
+c
+c END DO-loop on J numbers
+c
+            enddo
+c
+c END IF on remaining elements > 1
+c
+          endif
+c
+c
+c
+
+
+ 2001     continue
+
+c         Insert Rest 
+
+	  if(i.eq.0)then
+
+	    added_elements=0
+
+            do k_r = N-R+1, N
+
+              if(debug)write(*,'(a,20i8)') 'INSERTING REST:   ', k_r, seq_1(k_r)
+
+              inserted=.false.
+              starting_elements=N-R+added_elements
+              do k_i = starting_elements,1,-1
+
+                if(seq_0(k_r).gt.seq_2(k_i))then
+
+                  inserted=.true.
+                  added_elements=added_elements+1
+                  if(debug)write(*,'(a,20i8)') 'INSERTING above value:', seq_2(k_i)
+
+c                 Shift sequence up
+
+                  jj=k_i+1
+                  do ii= N, jj, -1
+                    if(seq_2(ii).gt.0)then
+                      seq_2(ii+1)=seq_2(ii)
+                    endif
+                  enddo
+
+c                 Insert Element
+
+                  seq_2(k_i+1)=seq_0(k_r)
+
+                  goto 2003
+
+                endif
+
+              enddo
+
+              if(.not.inserted)then
+
+                if(debug)write(*,*) 'INSERTING AS FIRST'
+                inserted=.true.
+	        added_elements=added_elements+1
+
+c               Shift sequence up
+
+                jj=1
+                do ii= N, jj, -1
+                  if(seq_2(ii).gt.0)then
+                    seq_2(ii+1)=seq_2(ii)
+                  endif
+                enddo
+
+c               Insert Element
+
+                seq_2(1)=seq_0(k_r)
+                goto 2003
+
+
+              endif
+
+ 2003         continue
+
+
+
+
+            enddo
+
+          else
+
+	    kk=N-R
+	    do ii=1,R
+	      seq_2(kk+ii)=seq_1(kk+ii)
+            enddo
+
+          endif
+c
+c
+c
+c	  
+          if(debug)write(*,'(a,20i8)') 'REVERSE SEQ:   ', i
+          if(debug)write(*,'(a,20i8)') 'RESTART: ', (seq_0(j),j=1,20)
+          if(debug)write(*,'(a,20i8)') 'OLD:     ', (seq_1(j),j=1,20)
+          if(debug)write(*,'(a,20i8)') 'NEW:     ', (seq_2(j),j=1,20)
+
+c       New sequence becomes the old one and then back
+
+          do j=1,N
+            seq_1(j)=seq_2(j)
+          enddo
+
+
+
+
+
+
+
+	enddo
+
+        call cputime(t1)
+        end_loop=t1
+	total_time=end_loop-start_loop
+        write(*,'(a,f20.5)') ' END at:', end_loop
+	write(*,'(a,f20.5)') ' TOTAL TIME:', total_time
+
+
+
+        write(*,'(a,20i8)') 'NEW:   ', (seq_2(j),j=1,20)
+
+c Check
+
+	do i=2,N
+	  if(seq_2(i).lt.seq_2(i-1)) then
+            write(*,*) 'ERROR::', i,  (seq_2(ii),ii=-10+i,10+i)
+            STOP ' - ERROR IN SORTING '
+          endif
+        enddo
+        write(*,*) ' CHECK OK! '
+
+c Write out  sequence
+
+        open(11,file='sequence_sorted', status='unknown')
+        write(11,*) N
+        do i = 1, N
+          write(11,*) i, seq_2(i)
+        enddo
+        close(11)
+
+
+
+
+	stop
+	end

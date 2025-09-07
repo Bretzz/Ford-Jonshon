@@ -5,6 +5,7 @@ CXXFLAGS	= -Wall -Werror -Wextra -std=c++98
 DEQUE		= $(NAME)_deque
 VECTOR		= $(NAME)_vector
 LIST		= $(NAME)_list
+FORTRAN		= $(NAME)_fortran
 SORT		= $(NAME)_sort
 
 SRCS_VECTOR	= main_vector.cpp merge_insert_vector.cpp
@@ -37,17 +38,21 @@ $(DEQUE): $(OBJS_DEQUE)
 $(LIST): $(OBJS_LIST)
 	$(CXX) $(CXXFLAGS) $(OBJS_LIST) -o $(LIST)
 
+$(FORTRAN):
+	cd merge_insert_fortran; ./compile-all
+	mv merge_insert_fortran/sort_using_FJ_algorithm $(FORTRAN)
+
 $(SORT): $(OBJS_SORT)
 	$(CXX) $(CXXFLAGS) $(OBJS_SORT) -o $(SORT)
 
-$(NAME): $(VECTOR) $(DEQUE) $(LIST) $(SORT) $(OBJS_MAIN)
+$(NAME): $(VECTOR) $(DEQUE) $(LIST) $(FORTRAN) $(SORT) $(OBJS_MAIN)
 	$(CXX) $(CXXFLAGS) $(OBJS_MAIN) -o $(NAME)
 
 clean:
-	rm -rf $(OBJS_DEQUE) $(OBJS_VECTOR) $(OBJS_LIST) $(OBJS_SORT) $(OBJS_MAIN) $(VECTOR).out $(DEQUE).out $(LIST).out $(SORT).out
+	rm -rf $(OBJS_DEQUE) $(OBJS_VECTOR) $(OBJS_LIST) $(OBJS_SORT) $(OBJS_MAIN) $(VECTOR).out $(DEQUE).out $(LIST).out $(FORTRAN).out $(SORT).out
 
 fclean: clean
-	rm -rf $(OBJ_DIR) $(NAME) $(VECTOR) $(DEQUE) $(LIST) $(SORT)
+	rm -rf $(OBJ_DIR) $(NAME) $(VECTOR) $(DEQUE) $(LIST) $(FORTRAN) $(SORT)
 
 re: fclean all
 

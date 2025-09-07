@@ -1,0 +1,18 @@
+#!/bin/bash
+
+
+./sort_using_FJ_algorithm << EOF
+2147483647
+100
+1000
+10000
+11
+9
+4
+12
+22
+EOF
+
+
+
+

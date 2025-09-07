@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/08/25 21:52:13 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/09/07 19:12:31 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static void fillRandNums(std::string& s, unsigned long n)
 
 	std::cout << "Generating sequence of " << n << " numbers... "; std::cout.flush();
 	while (i < n) {
-		unsigned int r = 1 + (std::rand() % 4294967296);
+		unsigned int r = 1 + (std::rand() % 2147483647);
 		size_t j = 0;
 		while (j < v.size()) {
 			if (r == v[j])
@@ -69,7 +69,7 @@ static void fillRandNums(std::string& s, unsigned long n)
 #include <unistd.h>
 #include <sys/time.h>	// gettimeofday
 
-static long long nowMs(void)
+static long long nowUs(void)
 {
     struct timeval tv;
 
@@ -90,9 +90,14 @@ int strcount(const std::string& str, int c)
 	return count;
 }
 
+#include <algorithm> // std::replace
+
 /* executes the program found at 'execpath' and prints the time */
-static int	timedExec(const std::string& execpath, const std::string& ARG)
+static int	timedExec(const std::string& execpath, std::string ARG, const char separator = ' ')
 {
+	/* formatting requierements */
+	std::replace(ARG.begin(), ARG.end(), ' ', separator);
+
 	// open a process for writing
 	FILE* pipe = popen((execpath + " > " + execpath + ".out" + " 2>&1").c_str(), "w");
 	
@@ -101,7 +106,8 @@ static int	timedExec(const std::string& execpath, const std::string& ARG)
 		return 1;
 	}
 
-	const long long start = nowMs();		/* CLOCK IN */
+	const long long start = nowUs();		/* CLOCK IN */
+
 
 	// Send data to the process
 	write(pipe->_fileno, ARG.c_str(), ARG.length());
@@ -111,7 +117,7 @@ static int	timedExec(const std::string& execpath, const std::string& ARG)
 	// Close pipe and wait for the process to finish
 	int status = pclose(pipe);
 	
-	const long long end = nowMs();		/* CLOCK OUT */
+	const long long end = nowUs();		/* CLOCK OUT */
 
 	if (!WIFEXITED(status)) {
 		std::cout << "Process terminated abnormally." << std::endl;
@@ -157,33 +163,33 @@ static int	normalize(std::string& str)
 	return 0;
 }
 
-static void	printLargeStr1(const std::string& before)
+static void	printLargeStr1(const std::string& lstr)
 {
-	std::cout << before.substr(0, 20);
-	if (before[19] == ' ')
+	std::cout << lstr.substr(0, 20);
+	if (lstr[19] == ' ')
 		return ;
-	std::cout << before.substr(20, before.find(' ', 19) - 19);
+	std::cout << lstr.substr(20, lstr.find(' ', 19) - 19);
 }
 
-static void	printLargeStr2(const std::string& before)
+static void	printLargeStr2(const std::string& lstr)
 {
-	size_t	i = before.size() - 21;
-	while (i > 0 && before.at(i) != ' ')
+	size_t	i = lstr.size() - 21;
+	while (i > 0 && lstr.at(i) != ' ')
 		--i;
-	std::cout << before.substr(i);
+	std::cout << lstr.substr(i);
 }
 
-/* prints 50 chars before, 20 after, without breaking numbers */
-static void	printLargeStr(const std::string& before)
+/* prints 50 chars lstr, 20 after, without breaking numbers */
+static void	printLargeStr(const std::string& lstr)
 {
-	if (before.size() <= 40)
+	if (lstr.size() <= 40)
 	{
-		std::cout << before << std::endl;
+		std::cout << lstr << std::endl;
 		return ;
 	}
-	printLargeStr1(before);
+	printLargeStr1(lstr);
 	std::cout << "[...]";
-	printLargeStr2(before);
+	printLargeStr2(lstr);
 	std::cout << std::endl;
 }
 
@@ -284,6 +290,31 @@ static int	checkDups(const std::string& nums)
 	return check4duplicates(v);
 }
 
+/* check if there is a number bigger than 2147483647 */
+static int	checkMax(const std::string& nums)
+{
+	unsigned int	len;
+
+	len = 0;
+	for (size_t i = 0; i < nums.length(); ++i) {
+		if (std::isspace(nums[i]))
+			len = 0;
+		else
+			++len;
+		if (len > 10)
+		{
+			std::cout << "Error: Input number too big: " << nums.substr(i - len + 1, len) << std::endl;
+			return 1;
+		}
+		if (len == 10 && std::atol(&nums[i - len]) > 2147483647)
+		{
+			std::cout << "Error: Input number too big: " << nums.substr(i - len, len) << std::endl;
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /* executes all the files passed writing to their stdin
 a sequence of random numbers betwee 1 and 4294967296,
 checking for the time of execution */
@@ -301,7 +332,13 @@ int	main(int argc, char *argv[])
 	/* NORMALIZE STR */
 	if (normalize(nums))
 		return 1;
-		
+	
+	std::cout << "normalized" << std::endl;
+
+	/* CHECK >2147483647 */
+	if (checkMax(nums))
+		return 1;
+
 	/* CHECK DUPICATES */
 	if (checkDups(nums))
 		return 1;
@@ -321,6 +358,7 @@ int	main(int argc, char *argv[])
 	timedExec("./PmergeMe_vector", nums);
 	if (strcount(nums, ' ') <= 20000)
 		timedExec("./PmergeMe_list", nums);
+	timedExec("./PmergeMe_fortran", nums);
 	timedExec("./PmergeMe_sort", nums);
 
 	/* PRINT AFTER */

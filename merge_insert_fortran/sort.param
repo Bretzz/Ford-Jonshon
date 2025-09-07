@@ -1,0 +1,7 @@
+
+
+c MAX number of integer in the sequence
+
+        integer max_n
+        parameter(max_n=100000)
+

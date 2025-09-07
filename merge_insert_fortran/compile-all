@@ -1,0 +1,22 @@
+#!/bin/bash
+
+
+#F77="gfortran-mp-12"
+F77="/home/topiana-/live_projects/github/Ford-Jonshon/gfortran_install/usr/bin/gfortran-12"
+FFLAGS="-B/usr/lib/gcc/x86_64-linux-gnu/12 -fno-use-linker-plugin -ffixed-line-length-none -O3"
+
+
+echo Compile create_sequence.f ...
+$F77 $FFLAGS ran3.f create_sequence.f init_random_number.f -o create_sequence
+
+echo Compile test for BINARY INSERT
+$F77 $FFLAGS test_binary_insert.f binary_insert.f -o test_binary_insert
+
+echo Compile sort_using_FJ_algorithm.f ...
+$F77 $FFLAGS sort_using_FJ_algorithm.f cputime.f binary_insert.f -o sort_using_FJ_algorithm
+
+
+echo End
+
+exit 0
+
