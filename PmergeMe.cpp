@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/25 14:24:17 by topiana-          #+#    #+#             */
-/*   Updated: 2025/09/07 19:12:31 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/09/07 20:15:06 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -358,7 +358,7 @@ int	main(int argc, char *argv[])
 	timedExec("./PmergeMe_vector", nums);
 	if (strcount(nums, ' ') <= 20000)
 		timedExec("./PmergeMe_list", nums);
-	timedExec("./PmergeMe_fortran", nums);
+	timedExec("./PmergeMe_fortran", nums, '\n');
 	timedExec("./PmergeMe_sort", nums);
 
 	/* PRINT AFTER */

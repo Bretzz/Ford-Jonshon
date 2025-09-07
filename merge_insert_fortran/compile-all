@@ -1,9 +1,8 @@
 #!/bin/bash
 
 
-#F77="gfortran-mp-12"
-F77="/home/topiana-/live_projects/github/Ford-Jonshon/gfortran_install/usr/bin/gfortran-12"
-FFLAGS="-B/usr/lib/gcc/x86_64-linux-gnu/12 -fno-use-linker-plugin -ffixed-line-length-none -O3"
+F77="gfortran-mp-12"
+FFLAGS="-ffixed-line-length-none -O3"
 
 
 echo Compile create_sequence.f ...
